@@ -8,7 +8,7 @@ import { Button } from '../components/Button'
 import { Line } from '../components/Line'
 
 
-const apiKey = 'c8c7bd018f4b8eca69b3d7595cf50b0b'
+const apiKey = ''
 
 export function WeatherForecast(){
     const [cityName, setCityName] = useState('')
