@@ -1,46 +1,99 @@
-import { VStack, HStack, Divider, Heading, Text, Box, Image, Icon } from 'native-base'
+import { VStack, HStack, Heading, Text, Box, Image, useToast } from 'native-base'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import * as Location from 'expo-location'
 
 import { Input } from '../components/Input'
 import { Button } from '../components/Button'
 import { Line } from '../components/Line'
 
 
-const apiKey = ''
-
+const apiKey = 'c8c7bd018f4b8eca69b3d7595cf50b0b'
 
 export function WeatherForecast(){
-    const [cityName, setCityName] = useState()
-    const [wind, setWind] = useState()
-    const [icon, setIcon] = useState()
-    const [temperature, setTemperature] = useState()
-    const [humidity, setHumidity] = useState()
-    const [country, setCountry] = useState()
-    const [dataWeather, setDataWeather] = useState()
+    const [cityName, setCityName] = useState('')
+    const [wind, setWind] = useState('')
+    const [icon, setIcon] = useState('')
+    const [temperature, setTemperature] = useState('')
+    const [humidity, setHumidity] = useState('')
+    const [sunRise, setSunRise] = useState('')
+    const [sunSet, setSunSet] = useState('')
+    const [dataWeather, setDataWeather] = useState('')
 
     const [weatherData, setWeatherData] = useState('')
+    const [location, setLocation] = useState(null)
+    const [errorMsg, setErrorMsg] = useState(null)
+
+    const toast = useToast()
+
+    async function coordinates(){
+            
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            toast.show({
+                title: 'Não foi permitido acessar localização',
+                placement:'top',
+                bgColor:'red.500'
+            })
+
+        }else{
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&units=metric&appid=${apiKey}&lang=pt_br`)
+            const data = await response.json()
+            setCityName(data.name)
+            setTemperature(data.main.temp)
+            setDataWeather(data.weather[0].description)
+            setIcon(data.weather[0].icon)
+            setSunRise(data.sys.surize)
+            setSunSet(data.sys.sunset)
+            setHumidity(data.main.humidity)
+            setWind(data.wind.speed)
+        }    
+    }
 
     async function handleApi(){
-        const response = await fetch (`https://api.openweathermap.org/data/2.5/weather?q=${weatherData}&units=metric&appid=${apiKey}&lang=pt_br`)
-       
-        const data = await response.json()
-        console.log(data.sys.country)
-        setCityName(data.name)
-        setTemperature(data.main.temp)
-        setDataWeather(data.weather[0].description)
-        setIcon(data.weather[0].icon)
-        setCountry(data.sys.country)
-        setHumidity(data.main.humidity)
-        setWind(data.wind.speed)
-         
+        if(weatherData.trim() === ''){
+            toast.show({
+                title: 'digite uma cidade',
+                placement:'top',
+                bgColor:'red.500'
+            })
+        }else{
+            const response = await fetch (`https://api.openweathermap.org/data/2.5/weather?q=${weatherData}&units=metric&appid=${apiKey}&lang=pt_br`)
 
+        const data = await response.json()
+        
+        
+        if(!data.cod){
+            toast.show({
+                title: 'Erro durante chamada',
+                placement:'top',
+                bgColor:'red.500'
+            })
+        }else{
+            setCityName(data.name)
+            setTemperature(data.main.temp)
+            setDataWeather(data.weather[0].description)
+            setIcon(data.weather[0].icon)
+            setSunRise(data.sys.surize)
+            setSunSet(data.sys.sunset)
+            setHumidity(data.main.humidity)
+            setWind(data.wind.speed)
+        }    
+    }
    }
-    
+
+   useEffect(()=>{
+    coordinates()
+    console.log('executou')
+   },[])
+
     return(
         <VStack flex={1} bg='primary.900'>
             <HStack space={3} justifyContent='center' shadow={3}>
-            <Input placeholder='Digite uma cidade' onChangeText={setWeatherData} mt={5}/>
+            <Input placeholder='Digite uma cidade' onChangeText={setWeatherData} mt={5} value={weatherData}/>
             <Button title='Buscar' onPress={handleApi} mt={5}/>
             </HStack>
             
@@ -58,11 +111,11 @@ export function WeatherForecast(){
                </Text>
                <Line/>
                <Text color='primary.100' fontSize='xl' fontFamily='heading'>
-                    <Feather name="wind" size={24} color='primary.100' />  {humidity} %
+               <MaterialCommunityIcons name="weather-rainy" size={24} color='primary.100' />  {humidity} %
                </Text>
                <Line/>
                     <Text color='primary.100' fontSize='xl' fontFamily='heading'>
-                    <MaterialCommunityIcons name="weather-rainy" size={24} color='primary.100' />  {wind} km/h
+                        <Feather name="wind" size={24} color='primary.100' />  {wind} km/h
                </Text>
             </Box>
             {/* <Box>
