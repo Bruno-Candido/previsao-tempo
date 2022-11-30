@@ -8,7 +8,8 @@ import { Button } from '../components/Button'
 import { Line } from '../components/Line'
 
 
-const apiKey = ''
+const apiKey = 'c8c7bd018f4b8eca69b3d7595cf50b0b'
+
 
 export function WeatherForecast(){
     const [cityName, setCityName] = useState('')
@@ -22,7 +23,6 @@ export function WeatherForecast(){
 
     const [weatherData, setWeatherData] = useState('')
     const [location, setLocation] = useState(null)
-    const [errorMsg, setErrorMsg] = useState(null)
 
     const toast = useToast()
 
@@ -46,7 +46,7 @@ export function WeatherForecast(){
             setTemperature(data.main.temp)
             setDataWeather(data.weather[0].description)
             setIcon(data.weather[0].icon)
-            setSunRise(data.sys.surize)
+            setSunRise(data.sys.sunrise)
             setSunSet(data.sys.sunset)
             setHumidity(data.main.humidity)
             setWind(data.wind.speed)
@@ -77,7 +77,7 @@ export function WeatherForecast(){
             setTemperature(data.main.temp)
             setDataWeather(data.weather[0].description)
             setIcon(data.weather[0].icon)
-            setSunRise(data.sys.surize)
+            setSunRise(data.sys.sunrise)
             setSunSet(data.sys.sunset)
             setHumidity(data.main.humidity)
             setWind(data.wind.speed)
@@ -85,9 +85,11 @@ export function WeatherForecast(){
     }
    }
 
+   let sunR = new Date(sunRise * 1000).toLocaleTimeString()
+   let sunS = new Date(sunSet * 1000).toLocaleTimeString()
+
    useEffect(()=>{
     coordinates()
-    console.log('executou')
    },[])
 
     return(
@@ -116,6 +118,14 @@ export function WeatherForecast(){
                <Line/>
                     <Text color='primary.100' fontSize='xl' fontFamily='heading'>
                         <Feather name="wind" size={24} color='primary.100' />  {wind} km/h
+               </Text>
+               <Line/>
+               <Text color='primary.100' fontSize='xl' fontFamily='heading'>
+                    <MaterialCommunityIcons name="weather-sunset-up" size={24} color='primary.100' /> {sunR}
+               </Text>
+               <Line/>
+               <Text color='primary.100' fontSize='xl' fontFamily='heading'>
+                    <MaterialCommunityIcons name="weather-sunset-down" size={24} color='primary.100' />  {sunS}
                </Text>
             </Box>
             {/* <Box>
